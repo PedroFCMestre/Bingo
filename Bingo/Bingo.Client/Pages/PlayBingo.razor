@@ -1,0 +1,100 @@
+﻿@page "/"
+
+@using Bingo.Client.Domain
+
+@inject Game Game
+@inject BoardsAvailable BoardsAvailable
+
+
+<PageTitle>Bingo</PageTitle>
+
+<center><h1>Bingo Game</h1></center>
+
+<br />
+<br />
+
+@if (Game.Status == GameStatus.NotStarted)
+{
+    <center>
+        <button class="btn btn-primary" @onclick="NewGame">Start New Game</button>
+    </center>
+}
+else
+{
+    
+    if (Game.Status == GameStatus.InProgress){
+        <center>
+            <button class="btn btn-primary" @onclick="DrawBall">New Ball</button>
+        </center>
+    }
+
+    <br />
+
+    @if (ball != null)
+    {
+        <center>
+            <h2>@ball</h2>
+        </center>
+
+    }
+
+    <br />
+    <br />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Balls Drawn</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ball in Game.NumbersDrawn.Order())
+            {
+                <tr>
+                    <td>@ball</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <br />
+    <br />
+
+    <button class="btn btn-primary" @onclick="EndGame">Finish</button>
+}
+
+
+
+@code {
+    // [Parameter]
+    // public Guid Id { get; set; }
+
+    private string? ball;
+
+    private Board? Board;
+
+    protected override void OnInitialized()
+    {
+        Board = BoardsAvailable.Boards.FirstOrDefault()!;
+        Game.Board = Board;
+    }
+
+    private void NewGame()
+    {
+        if (Board != null)
+        {
+            Game.StartGame(Board);
+        }
+    }
+
+    private void DrawBall()
+    {
+        ball = Game.DrawBall();
+    }
+
+    private void EndGame()
+    {
+        ball = null;
+        Game.EndGame();
+    }
+}
