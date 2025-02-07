@@ -2,24 +2,10 @@
 
 public class Game
 {
-    public Guid GameId { get; set; } = new Guid();
+    public Guid Id { get; set; } = new Guid();
     public GameStatus Status { get; set; } = GameStatus.NotStarted;
     public required Board Board { get; set; }
-    public List<int> NumbersDrawn { get; set; } = new List<int>();
-
-    private void CheckIfGameIsCompleted()
-    {
-        if (NumbersDrawn.Count == Board.TotalNumbers)
-        {
-            Status = GameStatus.Completed;
-        }
-    }
-
-    private string GenerateBall(int number)
-    {
-        var column = (int)Math.Ceiling((decimal)number / Board.NumberRangePerColumn) - 1;
-        return $"{Board.ColumnsLetters[column]}{number}";
-    }
+    public List<int> NumbersDrawn { get; set; } = [];
 
     public void StartGame(Board board)
     {
@@ -29,6 +15,13 @@ public class Game
         }
         Board = board;
         Status = GameStatus.InProgress;
+    }
+
+    public void EndGame()
+    {
+        Status = GameStatus.NotStarted;
+        //Board = null;
+        NumbersDrawn.Clear();
     }
 
     public string DrawBall()
@@ -52,10 +45,17 @@ public class Game
         return GenerateBall(number);
     }
 
-    public void EndGame()
+    private string GenerateBall(int number)
     {
-        Status = GameStatus.NotStarted;
-        //Board = null;
-        NumbersDrawn.Clear();
-    }    
+        var column = (int)Math.Ceiling((decimal)number / Board.NumberRangePerColumn) - 1;
+        return $"{Board.ColumnsLetters[column]}{number}";
+    }
+
+    private void CheckIfGameIsCompleted()
+    {
+        if (NumbersDrawn.Count == Board.TotalNumbers)
+        {
+            Status = GameStatus.Completed;
+        }
+    }
 }
