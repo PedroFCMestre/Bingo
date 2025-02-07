@@ -42,10 +42,10 @@ public class Game
 
         CheckIfGameIsCompleted();
 
-        return GenerateBall(number);
+        return GetBallLabel(number);
     }
 
-    private string GenerateBall(int number)
+    public string GetBallLabel(int number)
     {
         var column = (int)Math.Ceiling((decimal)number / Board.NumberRangePerColumn) - 1;
         return $"{Board.ColumnsLetters[column]}{number}";

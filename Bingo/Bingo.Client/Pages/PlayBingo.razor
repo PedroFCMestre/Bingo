@@ -21,7 +21,7 @@
 }
 else
 {
-    
+
     if (Game.Status == GameStatus.InProgress){
         <center>
             <button class="btn btn-primary" @onclick="DrawBall">Draw Ball</button>
@@ -41,7 +41,7 @@ else
     <br />
     <br />
 
-    <table class="table">
+    @*     <table class="table">
         <thead>
             <tr>
                 <th>Balls Drawn</th>
@@ -51,8 +51,37 @@ else
             @foreach (var ball in Game.NumbersDrawn.Order())
             {
                 <tr>
-                    <td>@ball</td>
+                    <td>@Game.GetBallLabel(ball)</td>
                 </tr>
+            }
+        </tbody>
+    </table> *@
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th colspan="4">Balls Drawn</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (drawnBalls != null)
+            {
+                @for (int i = 0; i < drawnBalls.Count; i += columns)
+                {
+                    <tr>
+                        @for (int j = 0; j < columns; j++)
+                        {
+                            if (i + j < drawnBalls.Count)
+                            {
+                                <td>@Game.GetBallLabel(drawnBalls[i + j])</td>
+                            }
+                            else
+                            {
+                                <td></td> <!-- Empty cell for alignment -->
+                            }
+                        }
+                    </tr>
+                }
             }
         </tbody>
     </table>
@@ -70,8 +99,9 @@ else
     // public Guid Id { get; set; }
 
     private string? ball;
-
     private Board? Board;
+    private List<int>? drawnBalls;
+    private int columns = 5;
 
     protected override void OnInitialized()
     {
@@ -90,11 +120,13 @@ else
     private void DrawBall()
     {
         ball = Game.DrawBall();
+        drawnBalls = Game.NumbersDrawn.Order().ToList();
     }
 
     private void EndGame()
     {
         ball = null;
+        drawnBalls = null;
         Game.EndGame();
     }
 }
