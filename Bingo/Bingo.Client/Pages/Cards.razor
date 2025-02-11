@@ -1,0 +1,64 @@
+﻿@page "/cards"
+@using Bingo.Client.Domain
+
+@inject IJSRuntime JSRuntime
+@inject BoardsAvailable BoardsAvailable
+
+
+<PageTitle>Bingo</PageTitle>
+
+<center><h1>Card Generator</h1></center>
+
+<br />
+<br />
+
+<label class="fw-bold" for="boardSelect">Card size</label>
+<InputSelect @bind-Value="BoardId" class="form-select">
+    @foreach (var item in BoardsAvailable.Boards)
+    {
+        <option value="@item.Id">@($"{item.Rows}x{item.Columns}")</option>
+    }
+</InputSelect>
+
+<br />
+<br />
+
+<label class="fw-bold" for="numberOfCards">Number of Cards</label>
+<InputNumber @bind-Value="numberOfCards" class="form-control" />
+
+<br />
+<br />
+<br />
+
+<button class="btn btn-primary" @onclick="DownloadBingoPdf">Generate Cards</button>
+
+@code {
+    private Guid BoardId;
+    private int numberOfCards;
+    //javascript module reference
+    private IJSObjectReference? module;
+
+    protected override void OnInitialized()
+    {
+        BoardId = BoardsAvailable.Boards.FirstOrDefault()?.Id ?? Guid.Empty;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Pages/Cards.razor.js");
+        }
+    }
+
+    private async Task DownloadBingoPdf()
+    {
+        var board = BoardsAvailable.Boards.FirstOrDefault(b => b.Id == BoardId) ?? null;
+        
+        if (module != null && board != null && numberOfCards > 0)
+        {
+            await module.InvokeVoidAsync("generateCards", board.Rows, board.Columns, board.NumberRangePerColumn, numberOfCards);
+        }
+    }
+
+}
